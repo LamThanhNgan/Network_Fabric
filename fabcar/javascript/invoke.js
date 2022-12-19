@@ -42,7 +42,10 @@ async function main() {
         // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR12', 'Dave')
-        await contract.submitTransaction('changeCarOwner', 'STIX0', '5/10')
+        const fs = require('fs');
+        const stix_file = (process.argv[2] || 'Default');
+        const stix_trans_data = (fs.readFileSync(stix_file)).toString();
+        await contract.submitTransaction('createCar', stix_trans_data);
         // await contract.submitTransaction('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom');
         console.log('Transaction has been submitted');
 
