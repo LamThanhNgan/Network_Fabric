@@ -12,7 +12,7 @@ class FabCar extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
-        const stixs_threat_actor = 
+        const stixs = 
         [
             {
                 "type": "bundle1",
@@ -172,15 +172,10 @@ class FabCar extends Contract {
                 ]
             }
         ];
-        for (let i = 0; i < stixs_threat_actor.length; i++) {
-            stixs_threat_actor[i].docType = 'stix';
-            await ctx.stub.putState('STIX' + i, Buffer.from(JSON.stringify(stixs_threat_actor[i])));
+        for (let i = 0; i < stixs.length; i++) {
+            await ctx.stub.putState('STIX' + i, Buffer.from(JSON.stringify(stixs[i])));
             console.info('Added <--> ', stixs_threat_actor[i]);
         }
-        // for (let i = 0; i < stixs.length; i++) {
-        //     await ctx.stub.putState('STIX0' + i, Buffer.from(JSON.stringify(stixs[i])));
-        //     console.info('Added <--> ', stixs_threat_actor[i]);
-        // }
         console.info('============= END : Initialize Ledger ===========');
     }
 
@@ -193,11 +188,25 @@ class FabCar extends Contract {
         return stixAsBytes.toString();
     }
 
-    async createCar(ctx, Number,stix_trans_data) {
+    async createCar(ctx, stix_trans_data) {
         console.info('============= START : Create STIX ===========');
         const trans_data = stix_trans_data;
+        const startKey = '';
+        const endKey = '';
+        var finalkey = '';
+        for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)) {finalkey=key;}
+        var coefficient = 1;
+        var index = 0;
+        for (let i = finalkey.length; i > 4; i--) {
+            index += Number(finalkey[i-1])*coefficient;
+            coefficient *=10;
+        }
+        var Number = "STIX"+ (index + 1);
         await ctx.stub.putState(Number, Buffer.from(trans_data));
+        //validator function
         console.info('============= END : Create STIX ===========');
+        
+
     }
 
     async queryAllCars(ctx) {
@@ -205,7 +214,7 @@ class FabCar extends Contract {
         const endKey = '';
         const allResults = [];
         for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)) {
-            const strValue = Buffer.from(value).toString('utf8');
+            const strValue = Buffer.from(value).toString('utf8'); 
             let record;
             try {
                 record = JSON.parse(strValue);
